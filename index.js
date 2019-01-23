@@ -21,8 +21,10 @@ module.exports = async function (context, req) {
         context.done();
     }
 
+    var branchName = (req.body.ref).replace('refs/heads/','');
+
     //課題書き込み用のコメントを生成
-    var issueComment = `${commit.committer.name} がコミット
+    var issueComment = `[${commit.committer.name} が [${branchName}] ブランチにコミット
 ${commit.url}
             
 <<コミットコメント>>
