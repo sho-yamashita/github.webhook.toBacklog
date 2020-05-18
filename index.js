@@ -1,15 +1,18 @@
 //課題番号の抽出条件
-const ISSUE_PATTERN = /.+-[0-9]+/;
+// Revert "～" もひっかけるために " を含めない → [^ \"] の部分
+// 本当は先頭だけに制限するところかもだけど、まぁ、実際いままでこれで動いていたのでこれでいく
+// そういう意味では現状、行頭に限らず、最初の一つ目にあったものを backlog の課題番号として想定して動いている
+const ISSUE_PATTERN = /[^ \"]+-[0-9]+/;
 
 // TODO:もろもろエラーチェック。commitがないときとか。
 function postIssueComment(request,conf,context, branchName, commit) {
     //feat: 等は除く
-    //context.log('メッセージ is'+commit.message);
+    context.log('メッセージ:[' + commit.message + ']');
     var issueId = commit.message.replace(/.+: /, '').match(ISSUE_PATTERN);
     if(!issueId){
         return;
     }
-    context.log('issueId is ' + issueId);
+    context.log('issueId:[' + issueId + ']');
 
     //課題書き込み用のコメントを生成
     var issueComment = `${commit.committer.name} が [${branchName}] ブランチにコミット
@@ -28,6 +31,7 @@ ${commit.message}`;
             json :true
         };
 
+    //context.log('url is ' + options.url);
     //バックログの課題に書き込み
     request(options, function (error, response, body) {
         context.res = {
